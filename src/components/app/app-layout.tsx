@@ -23,6 +23,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { prioritizeTasks } from '@/ai/flows/prioritize-tasks';
 
+const UNCATEGORIZED_PROJECT_ID = 'uncategorized';
+const UNCATEGORIZED_PROJECT_NAME = 'Uncategorized';
+
 export default function AppLayout() {
   const [isLoading, setIsLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -36,7 +39,15 @@ export default function AppLayout() {
       try {
         const projectsCollection = collection(db, 'projects');
         const projectsSnapshot = await getDocs(projectsCollection);
-        const projectsData = projectsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+        let projectsData = projectsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+
+        if (!projectsData.some(p => p.id === UNCATEGORIZED_PROJECT_ID)) {
+          const uncategorizedProject = { id: UNCATEGORIZED_PROJECT_ID, name: UNCATEGORIZED_PROJECT_NAME };
+          // This project is virtual and doesn't need to be in Firestore unless we want it to be editable.
+          // For now, we'll just add it to the local state.
+          projectsData.unshift(uncategorizedProject);
+        }
+
         setProjects(projectsData);
         
         const tasksCollection = collection(db, 'tasks');
@@ -74,6 +85,11 @@ export default function AppLayout() {
   };
 
   const updateProject = async (updatedProject: Project) => {
+    if (updatedProject.id === UNCATEGORIZED_PROJECT_ID) {
+      // Potentially update name in local state if we allow it
+      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+      return;
+    }
     try {
       const projectRef = doc(db, "projects", updatedProject.id);
       await updateDoc(projectRef, { name: updatedProject.name });
@@ -89,6 +105,14 @@ export default function AppLayout() {
   };
   
   const deleteProject = async (projectId: string) => {
+    if (projectId === UNCATEGORIZED_PROJECT_ID) {
+      toast({
+          title: "Cannot delete",
+          description: "The 'Uncategorized' project cannot be deleted.",
+          variant: "destructive",
+        });
+      return;
+    }
     try {
       const batch = writeBatch(db);
       
@@ -122,7 +146,8 @@ export default function AppLayout() {
 
   const addTask = async (task: Omit<Task, 'id' | 'completed'>) => {
     try {
-      const newTaskData = { ...task, completed: false };
+      // If projectId is not provided, it defaults to uncategorized.
+      const newTaskData = { ...task, completed: false, projectId: task.projectId || UNCATEGORIZED_PROJECT_ID };
       const docRef = await addDoc(collection(db, "tasks"), newTaskData);
       const newTask = { ...newTaskData, id: docRef.id };
       setTasks([...tasks, newTask]);
@@ -291,6 +316,7 @@ export default function AppLayout() {
             onToggleCompletion={toggleTaskCompletion}
             onMoveTask={moveTask}
             allProjects={projects}
+            onAddTask={addTask}
           />
         ) : activeView === 'done' ? (
           <DoneView tasks={completedTasks} onToggleCompletion={toggleTaskCompletion} />
