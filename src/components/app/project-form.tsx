@@ -5,12 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Project name is required." }).max(50),
-  description: z.string().max(200).optional(),
 });
 
 type ProjectFormValues = z.infer<typeof formSchema>;
@@ -23,7 +21,7 @@ interface ProjectFormProps {
 export function ProjectForm({ onSubmit, defaultValues }: ProjectFormProps) {
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues || { name: '', description: '' },
+    defaultValues: defaultValues || { name: '' },
   });
 
   return (
@@ -37,19 +35,6 @@ export function ProjectForm({ onSubmit, defaultValues }: ProjectFormProps) {
               <FormLabel>Project Name</FormLabel>
               <FormControl>
                 <Input placeholder="e.g. Q4 Launch" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="A brief description of the project." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

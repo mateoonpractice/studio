@@ -99,7 +99,7 @@ export default function AppLayout() {
       });
       const result = await prioritizeTasks({
         tasks: projectTasks.map(({ title, description }) => ({ title, description: description || '' })),
-        projectGoals: project.description || project.name,
+        projectGoals: project.name,
       });
 
       const updatedTasks = tasks.map(task => {

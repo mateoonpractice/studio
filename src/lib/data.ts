@@ -4,17 +4,14 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'proj-1',
     name: 'Website Redesign',
-    description: 'Complete redesign of the company website to improve user experience and modernize the design.',
   },
   {
     id: 'proj-2',
     name: 'Q3 Marketing Campaign',
-    description: 'Plan and execute the marketing campaign for the third quarter.',
   },
   {
     id: 'proj-3',
     name: 'Personal Goals',
-    description: 'Tasks for personal growth and development.',
   },
 ];
 

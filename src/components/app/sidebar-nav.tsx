@@ -27,7 +27,7 @@ interface SidebarNavProps {
 export function SidebarNav({ projects, activeView, setActiveView, onAddProject }: SidebarNavProps) {
   const [isCreateProjectOpen, setCreateProjectOpen] = useState(false);
 
-  const handleProjectCreate = (data: { name: string; description?: string }) => {
+  const handleProjectCreate = (data: { name: string; }) => {
     onAddProject(data);
     setCreateProjectOpen(false);
   };

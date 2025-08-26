@@ -30,7 +30,7 @@ export function ProjectView({ project, tasks, allProjects, onUpdateProject, onDe
   const [isEditProjectOpen, setEditProjectOpen] = useState(false);
   const [isCreateTaskOpen, setCreateTaskOpen] = useState(false);
 
-  const handleProjectUpdate = (data: { name: string, description?: string }) => {
+  const handleProjectUpdate = (data: { name: string }) => {
     onUpdateProject({ ...project, ...data });
     setEditProjectOpen(false);
   };
@@ -45,7 +45,6 @@ export function ProjectView({ project, tasks, allProjects, onUpdateProject, onDe
       <header className="flex items-center justify-between mb-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold md:text-3xl">{project.name}</h1>
-          <p className="text-muted-foreground">{project.description}</p>
         </div>
         <div className="flex items-center gap-2">
            <Button onClick={() => taskHandlers.onPrioritize(project.id)} size="sm">
