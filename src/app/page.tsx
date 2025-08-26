@@ -1,5 +1,5 @@
 import AppLayout from "@/components/app/app-layout";
 
-export default function Home() {
+export default async function Home() {
   return <AppLayout />;
 }
