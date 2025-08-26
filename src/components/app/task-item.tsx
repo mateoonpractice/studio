@@ -2,15 +2,13 @@
 
 import { useState } from 'react';
 import type { Task, Project } from '@/lib/types';
-import { MoreVertical, Pencil, Trash2, Move, Flame, Zap, Snowflake, HelpCircle } from 'lucide-react';
+import { MoreVertical, Pencil, Trash2, Move } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuPortal, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TaskForm } from './task-form';
 
 interface TaskItemProps {
@@ -22,12 +20,6 @@ interface TaskItemProps {
   onMoveTask: (taskId: string, newProjectId: string) => void;
 }
 
-const priorityIcons = {
-  High: <Flame className="h-4 w-4 text-red-500" />,
-  Medium: <Zap className="h-4 w-4 text-yellow-500" />,
-  Low: <Snowflake className="h-4 w-4 text-blue-500" />,
-};
-
 export function TaskItem({ task, allProjects, onUpdateTask, onDeleteTask, onToggleCompletion, onMoveTask }: TaskItemProps) {
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -36,8 +28,6 @@ export function TaskItem({ task, allProjects, onUpdateTask, onDeleteTask, onTogg
     setEditDialogOpen(false);
   };
   
-  const priorityIcon = task.priority ? priorityIcons[task.priority] : null;
-
   return (
     <Card className="p-3 transition-all hover:shadow-md">
       <div className="flex items-start gap-3">
@@ -50,28 +40,6 @@ export function TaskItem({ task, allProjects, onUpdateTask, onDeleteTask, onTogg
         <div className="flex-1">
           <label htmlFor={task.id} className="font-medium cursor-pointer">{task.title}</label>
           {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
-          {task.priority && (
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant={
-                task.priority === 'High' ? 'destructive' : task.priority === 'Medium' ? 'secondary' : 'outline'
-              }>
-                {priorityIcon}
-                <span className="ml-1">{task.priority} Priority</span>
-              </Badge>
-              {task.reason && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">{task.reason}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-          )}
         </div>
         
         <AlertDialog>

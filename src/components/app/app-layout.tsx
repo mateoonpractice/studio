@@ -21,7 +21,6 @@ import { DoneView } from '@/components/app/done-view';
 import { AllTasksView } from '@/components/app/all-tasks-view';
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { prioritizeTasks } from '@/ai/flows/prioritize-tasks';
 
 const UNCATEGORIZED_PROJECT_ID = 'uncategorized';
 const UNCATEGORIZED_PROJECT_NAME = 'Uncategorized';
@@ -223,67 +222,6 @@ export default function AppLayout() {
     }
   };
 
-  const handlePrioritize = async (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project) return;
-
-    const projectTasks = tasks.filter(t => t.projectId === projectId && !t.completed);
-
-    if (projectTasks.length === 0) {
-      toast({
-        title: "No tasks to prioritize",
-        description: "Add some tasks to this project first.",
-      });
-      return;
-    }
-
-    try {
-       toast({
-        title: "AI is thinking...",
-        description: "Prioritizing your tasks based on project goals.",
-      });
-      const result = await prioritizeTasks({
-        tasks: projectTasks.map(({ title, description }) => ({ title, description: description || '' })),
-        projectGoals: project.name,
-      });
-
-      const batch = writeBatch(db);
-      const updatedTasksState = [...tasks];
-
-      result.prioritizedTasks.forEach(pt => {
-        const taskToUpdate = projectTasks.find(t => t.title === pt.title);
-        if (taskToUpdate) {
-          const taskRef = doc(db, "tasks", taskToUpdate.id);
-          const priority = pt.priority as Task['priority'];
-          const reason = pt.reason;
-          batch.update(taskRef, { priority, reason });
-          
-          const taskIndex = updatedTasksState.findIndex(t => t.id === taskToUpdate.id);
-          if (taskIndex !== -1) {
-            updatedTasksState[taskIndex] = { ...updatedTasksState[taskIndex], priority, reason };
-          }
-        }
-      });
-      
-      await batch.commit();
-      setTasks(updatedTasksState);
-      
-      toast({
-        title: "Success!",
-        description: "Tasks have been prioritized by AI.",
-        variant: "default",
-      });
-
-    } catch (error) {
-      console.error("AI Prioritization Error:", error);
-      toast({
-        title: "Error",
-        description: "Could not prioritize tasks. Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const activeProject = useMemo(() => projects.find(p => p.id === activeView), [projects, activeView]);
   const tasksForProject = useMemo(() => tasks.filter(t => t.projectId === activeView && !t.completed), [tasks, activeView]);
   const completedTasks = useMemo(() => tasks.filter(t => t.completed), [tasks]);
@@ -333,7 +271,6 @@ export default function AppLayout() {
             onDeleteTask={deleteTask}
             onToggleCompletion={toggleTaskCompletion}
             onMoveTask={moveTask}
-            onPrioritize={handlePrioritize}
           />
         ) : (
           <div className="flex items-center justify-center h-full">

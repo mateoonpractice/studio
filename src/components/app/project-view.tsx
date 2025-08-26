@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { MoreVertical, Plus, Trash2, Pencil, Lightbulb } from 'lucide-react';
+import { MoreVertical, Plus, Trash2, Pencil } from 'lucide-react';
 import type { Project, Task } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -23,7 +23,6 @@ interface ProjectViewProps {
   onDeleteTask: (taskId: string) => void;
   onToggleCompletion: (taskId: string) => void;
   onMoveTask: (taskId: string, newProjectId: string) => void;
-  onPrioritize: (projectId: string) => void;
 }
 
 export function ProjectView({ project, tasks, allProjects, onUpdateProject, onDeleteProject, onAddTask, ...taskHandlers }: ProjectViewProps) {
@@ -47,10 +46,6 @@ export function ProjectView({ project, tasks, allProjects, onUpdateProject, onDe
           <h1 className="text-2xl font-bold md:text-3xl">{project.name}</h1>
         </div>
         <div className="flex items-center gap-2">
-           <Button onClick={() => taskHandlers.onPrioritize(project.id)} size="sm">
-            <Lightbulb className="mr-2 h-4 w-4" />
-            Prioritize with AI
-          </Button>
           <Dialog open={isCreateTaskOpen} onOpenChange={setCreateTaskOpen}>
             <DialogTrigger asChild>
               <Button size="sm">

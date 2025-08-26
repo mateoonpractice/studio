@@ -4,8 +4,6 @@ export interface Task {
   description?: string;
   completed: boolean;
   projectId: string;
-  priority?: 'High' | 'Medium' | 'Low';
-  reason?: string;
 }
 
 export interface Project {
