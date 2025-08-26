@@ -7,6 +7,7 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import { SidebarNav } from '@/components/app/sidebar-nav';
 import { ProjectView } from '@/components/app/project-view';
 import { DoneView } from '@/components/app/done-view';
+import { AllTasksView } from '@/components/app/all-tasks-view';
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { prioritizeTasks } from '@/ai/flows/prioritize-tasks';
@@ -15,7 +16,7 @@ export default function AppLayout() {
   const [isClient, setIsClient] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [activeView, setActiveView] = useState('proj-1'); // 'done' or project id
+  const [activeView, setActiveView] = useState('all-tasks'); // 'all-tasks', 'done' or project id
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function AppLayout() {
     setProjects(projects.filter(p => p.id !== projectId));
     setTasks(tasks.filter(t => t.projectId !== projectId));
     if (activeView === projectId) {
-      setActiveView(projects.length > 1 ? projects.find(p => p.id !== projectId)!.id : 'done');
+      setActiveView(projects.length > 1 ? 'all-tasks' : 'done');
     }
   };
 
@@ -130,6 +131,7 @@ export default function AppLayout() {
   const activeProject = useMemo(() => projects.find(p => p.id === activeView), [projects, activeView]);
   const tasksForProject = useMemo(() => tasks.filter(t => t.projectId === activeView && !t.completed), [tasks, activeView]);
   const completedTasks = useMemo(() => tasks.filter(t => t.completed), [tasks]);
+  const allIncompleteTasks = useMemo(() => tasks.filter(t => !t.completed), [tasks]);
   
   if (!isClient) {
     return null; // Or a loading spinner
@@ -146,7 +148,16 @@ export default function AppLayout() {
         />
       </Sidebar>
       <SidebarInset>
-        {activeView === 'done' ? (
+        {activeView === 'all-tasks' ? (
+          <AllTasksView 
+            tasks={allIncompleteTasks} 
+            onUpdateTask={updateTask}
+            onDeleteTask={deleteTask}
+            onToggleCompletion={toggleTaskCompletion}
+            onMoveTask={moveTask}
+            allProjects={projects}
+          />
+        ) : activeView === 'done' ? (
           <DoneView tasks={completedTasks} onToggleCompletion={toggleTaskCompletion} />
         ) : activeProject ? (
           <ProjectView

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Folder, CheckCircle, Plus, Settings } from 'lucide-react';
+import { Folder, CheckCircle, Plus, LayoutGrid } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import { 
   SidebarHeader,
@@ -43,6 +43,12 @@ export function SidebarNav({ projects, activeView, setActiveView, onAddProject }
       <SidebarContent>
         <SidebarGroup>
            <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setActiveView('all-tasks')} isActive={activeView === 'all-tasks'}>
+                <LayoutGrid />
+                <span>All Tasks</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={() => setActiveView('done')} isActive={activeView === 'done'}>
                 <CheckCircle />
